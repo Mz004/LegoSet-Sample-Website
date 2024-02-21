@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lego Collection</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="server" href="../../server.js">
+
+</head>
+<body tabindex="-1">
+    <div class="flex justify-between items-center mx-4">
+        <div class="flex-1 w-10/12">
+            <a href="/" class="btn btn-ghost normal-case justify-center items-center h-auto text-3xl p-4 px-6" aria-label="Home">Lego Collection</a>
+            
+        </div>
+        
+        <div class="flex items-center justify-center w-2/12 text-lg">
+            <a href="about" class="mx-2 active" aria-label="About">About</a>
+            
+            <div class="dropdown mx-2">
+                <details>
+                    <summary class="::after">Theme</summary>
+                    <ul class="menu menu-sm dropdown-content right-0 mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52" >
+                        <li><a href="/lego/sets?theme=technic">Technic</a></li>
+                        <li><a href="/lego/sets?theme=RoboRiders">RoboRiders</a></li>
+                        <li><a href="/lego/sets?theme=Star-Wars">Star Wars</a></li>
+                    </ul>
+                </details>
+            </div>
+        </div>
+    </div>
+    <br>
+
+    <div class="container mx-auto">
+        <div class="hero bg-base-200 rounded-lg p-6">
+            <div class="hero-content text-center ">
+                <div class="max-w-md">
+                    <h1 class="text-6xl font-bold">404</h1>
+                    <p class="py-6">Page Not Found!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+</body>
+</html>

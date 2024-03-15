@@ -1,74 +1,62 @@
 /********************************************************************************
-* WEB322 – Assignment 03
+* WEB322 – Assignment 04
 *
 * I declare that this assignment is my own work in accordance with Seneca's
 * Academic Integrity Policy:
 *
 * https://www.senecacollege.ca/about/policies/academic-integrity-policy.html
 *
-* Name: Manav Alpeshbhai Zadafiya     Student ID: 144095221     Date: 2024-02-20
+* Name: Manav Alpeshbhai Zadafiya     Student ID: 144095221     Date: 2024-03-11
 * 
-* 
+* https://worrisome-bat-long-johns.cyclic.app
 *
 ********************************************************************************/
+const legoData = require("./modules/legoSets");
+const path = require("path");
+
 const express = require('express');
-const path = require('path');
-const legoData = require('./modules/legoSets');
-
-
 const app = express();
-const port = process.env.PORT || 8080;
 
-// Set the public folder as static
+const HTTP_PORT = process.env.PORT || 8080;
+
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('view engine', 'ejs');
 
-legoData.initialize()
-.then(() => {
-  // GET "/"
-  app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, './public/views/home.html'));
-  });
 
-  // GET "/about"
-  app.get('/about', (req, res) => {
-    res.sendFile(path.join(__dirname, './public/views/about.html'));
-  });
+app.get('/', (req, res) => res.render('home'));
 
-  app.get('/lego/sets', (req, res) => {
-    const theme = req.query.theme;
-    if (theme) {
-      legoData.getSetsByTheme(theme)
-        .then(sets => res.json(sets))
-        .catch(error => res.status(404).send(`Error: ${error}`));
-    } else {
-      legoData.getAllSets()
-        .then(allSets => res.json(allSets))
-        .catch(error => res.status(404).send(`Error: ${error}`));
+app.get('/about', (req, res) => res.render('about'));
+
+app.get("/lego/sets", async (req,res)=>{
+  try{
+    if(req.query.theme){
+      let sets = await legoData.getSetsByTheme(req.query.theme);
+      res.render("sets", { sets: sets });
+  
+    }else{
+      let sets = await legoData.getAllSets();
+      res.render("sets", { sets: sets });
     }
-  });
+  }catch(err){
+    res.status(404).render("404", { message: "Unable to find requested set." });
+  }
 
-  // GET "/lego/sets/:id"
-  app.get('/lego/sets/:id', (req, res) => {
-    const setId = req.params.id;
-    legoData.getSetByNum(setId)
-      .then(set => {
-        if (set) {
-          res.json(set);
-        } else {
-          res.status(404).send('Lego set not found');
-        }
-      })
-      .catch(error => res.status(404).send(`Error: ${error}`));
-  });
-    // Custom 404 error handler
-    app.use((req, res) => {
-      res.status(404).sendFile(path.join(__dirname, './public/views/404.html'));
-    });
-    // Start the server
-    app.listen(port, () => {
-      console.log(`Server is running on http://localhost:${port}`);
-    });
-  })
-  .catch(error => {
-    console.error(`Initialization error: ${error}`);
-  });
+});
+
+app.get("/lego/sets/:num", async (req,res)=>{
+  try{
+    let set = await legoData.getSetByNum(req.params.num);
+    res.render("set", {set: set});
+  }catch(err){
+    res.status(404).render("404", { message: "Unable to find requested sets." });
+  }
+});
+
+app.use((req, res, next) => {
+  res.status(404).render("404", { message: "I'm sorry, we're unable to find what you're looking for." });
+});
+
+
+legoData.initialize().then(()=>{
+  app.listen(HTTP_PORT, () => { console.log(`server running on: http://localhost:${HTTP_PORT}`) });
+});

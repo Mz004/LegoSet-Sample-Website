@@ -1,3 +1,16 @@
+/********************************************************************************
+* WEB322 – Assignment 04
+*
+* I declare that this assignment is my own work in accordance with Seneca's
+* Academic Integrity Policy:
+*
+* https://www.senecacollege.ca/about/policies/academic-integrity-policy.html
+*
+* Name: Manav Alpeshbhai Zadafiya     Student ID: 144095221     Date: 2024-03-22
+*
+* Published Website: https://worrisome-bat-long-johns.cyclic.app/
+*
+********************************************************************************/
 const legoData = require("./modules/legoSets");
 const path = require("path");
 

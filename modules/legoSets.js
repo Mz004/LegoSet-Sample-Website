@@ -1,11 +1,10 @@
-require('dotenv').config();
-const Sequelize = require('sequelize');
+require("dotenv").config();
+const Sequelize = require("sequelize");
 
-const setData = require("../data/setData");
-const themeData = require("../data/themeData");
-let sets = [];
+// const setData = require("../data/setData.json");
+// const themeData = require("../data/themeData.json");
 
-let sequelize = new Sequelize({
+const sequelize = new Sequelize({
   host: process.env.DB_HOST,
   database: process.env.DB_DATABASE,
   username: process.env.DB_USER,
@@ -14,7 +13,7 @@ let sequelize = new Sequelize({
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false, // You might need to set this to true in production
+      rejectUnauthorized: false,
     },
   },
 });
@@ -36,21 +35,21 @@ const Set = sequelize.define("Set", {
   name: Sequelize.STRING,
   year: Sequelize.INTEGER,
   num_parts: Sequelize.INTEGER,
+  theme_id: Sequelize.INTEGER,
   img_url: Sequelize.STRING,
 });
 
-// Set association between Theme and Set
 Set.belongsTo(Theme, { foreignKey: "theme_id" });
 
-function initialize() {
-  return new Promise(async (resolve, reject) => {
-    try {
-      await sequelize.sync();
-      resolve();
-    } catch (err) {
-      reject(err);
-    }
-  });
+async function initialize() {
+  try {
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+    await sequelize.sync();
+    console.log("Database synchronized successfully.");
+  } catch (error) {
+    console.error('Error initializing database:', error);
+  }
 }
 
 async function getAllSets() {
@@ -100,42 +99,51 @@ async function getSetsByTheme(theme) {
     console.error("Error getting sets by theme:", error);
     throw error;
   }
+};
+async function addSet(setData) {
+  try {
+    const newSet = await Set.create(setData);
+    return newSet;
+  } catch (error) {
+    throw new Error('Error adding set: ' + error.message);
+  }
 }
 
-const addSet = async (setData) => {
-  try {
-    console.log(setData);
-    await Set.create(setData);
-  } catch (err) {
-    // throw new Error(err);
-    throw err.errors[0].message;
-  }
-};
-
-const getAllThemes = async () => {
+async function getAllThemes() {
   try {
     const themes = await Theme.findAll();
     return themes;
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    throw new Error('Error fetching themes: ' + error.message);
   }
-};
+}
 
-const editSet = async (setNum, setData) => {
+async function editSet(set_num, setData) {
   try {
-    await Set.update(setData, { where: { set_num: setNum } });
-  } catch (err) {
-    throw err.errors[0].message;
+    const set = await Set.findOne({ where: { set_num: set_num } }); 
+    if (set) {
+      await set.update(setData);
+      console.log('Set updated successfully');
+      return set;
+    } else {
+      throw new Error(`Set with set number ${set_num} not found`);
+    }
+  } catch (error) {
+    throw new Error(`Error updating set: ${error}`);
   }
-};
+}
 
-const deleteSet = async (setNum) => {
+
+async function deleteSet(setNum) {
   try {
-    await Set.destroy({ where: { set_num: setNum } });
-  } catch (err) {
-    throw err.errors[0].message;
+    const deletedSetCount = await Set.destroy({ where: { set_num: setNum } });
+    if (deletedSetCount === 0) {
+      throw new Error('Set not found');
+    }
+  } catch (error) {
+    throw new Error('Error deleting set: ' + error.message);
   }
-};
+}
 
 module.exports = { initialize, getAllSets, getSetByNum, getSetsByTheme, addSet, getAllThemes, editSet, deleteSet };
 

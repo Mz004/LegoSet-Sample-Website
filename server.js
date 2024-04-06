@@ -93,7 +93,9 @@ app.get('/lego/editSet/:num', async (req, res) => {
 
 app.post('/lego/editSet', async (req, res) => {
   try {
-    await legoData.editSet(req.body.set_num, req.body);
+    const setNum = req.body.set_num;
+    const setData = req.body;
+    await legoData.editSet(setNum, setData);
     res.redirect(`/lego/sets/${setNum}`);
   } catch (error) {
     console.error('Error updating set:', error);

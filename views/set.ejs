@@ -47,7 +47,7 @@
             <p><strong>Theme: </strong><%= set.Theme.name %></p>
             <p><strong>Number of Parts: </strong><%= set.num_parts %></p>
             <div class="quote mt-4" id="quote"></div>
-            <a class="btn btn-outline btn-sm" href="/lego/editSet/<%= set.set_num %>">Edit</a>
+            <% if(session.user){ %> <a class="btn btn-outline btn-sm" href="/lego/editSet/<%= set.set_num %>">Edit</a><% } %>
             <a href="#" class="btn btn-primary btn-sm mt-4" onclick="history.back(); return false;">Back</a>
         </div>
     </div>

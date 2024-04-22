@@ -1,19 +1,20 @@
 /********************************************************************************
-* WEB322 – Assignment 05
+* WEB322 – Assignment 06
 *
 * I declare that this assignment is my own work in accordance with Seneca's
 * Academic Integrity Policy:
 *
 * https://www.senecacollege.ca/about/policies/academic-integrity-policy.html
 *
-* Name: Manav Alpeshbhai Zadafiya     Student ID: 144095221     Date: 2024-04-05
+* Name: Manav Alpeshbhai Zadafiya     Student ID: 144095221     Date: 2024-04-09
 *
 * Published Website: https://worrisome-bat-long-johns.cyclic.app/
 *
 ********************************************************************************/
-const legoData = require("./modules/legoSets");
-const path = require("path");
-
+const legoData = require('./modules/legoSets');
+const authData = require('./modules/auth-service');
+const clientSessions = require('client-sessions');
+const path = require('path');
 const express = require('express');
 const app = express();
 
@@ -23,9 +24,68 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true })); 
 app.set('view engine', 'ejs');
 
-app.get("/", (req, res) => res.render("home"));
+app.use(
+  clientSessions({
+    cookieName: "session",
+    secret: "secret_string_a6",
+    duration: 24 * 60 * 60 * 1000,
+    activeDuration: 1000 * 60 * 5,
+  })
+); 
 
-app.get("/about", (req, res) => res.render("about"));
+app.use((req, res, next) => {
+  res.locals.session = req.session;
+  next();
+});
+
+function ensureLogin(req, res, next) {
+  if (req.session && req.session.user) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
+}
+
+app.get("/", (req, res) => res.render('home'));
+
+app.get("/register", (req, res) => {
+  res.render("register", {
+    errorMessage: "",
+    successMessage: "",
+    userName: "",
+  });
+});
+
+app.post('/register', async (req, res) => {
+  try {
+    const userData = req.body;
+    await authData.registerUser(userData);
+    res.render('register', { successMessage: "User created" });
+  } catch (error) {
+    res.render('register', { errorMessage: error, userName: req.body.userName });
+  }
+});
+
+app.get("/login", (req, res) => {
+  res.render("login", { errorMessage: "", userName: "" });
+});
+
+app.post('/login', async (req, res) => {
+  try {
+    req.body.userAgent = req.get('User-Agent');
+    const user = await authData.checkUser(req.body);
+    req.session.user = {
+      userName: user.userName,
+      email: user.email,
+      loginHistory: user.loginHistory
+    };
+    res.redirect('/lego/sets');
+  } catch (error) {
+    res.render('login', { errorMessage: error, userName: req.body.userName });
+  }
+});
+
+app.get("/about", (req, res) => res.render('about'));
 
 app.get("/lego/sets/", async (req, res) => {
   const theme = req.query.theme;
@@ -60,7 +120,7 @@ app.get("/lego/sets/:num", async (req, res) => {
   }
 });
 
-app.get('/lego/addSet', async (req, res) => {
+app.get('/lego/addSet', ensureLogin, async (req, res) => {
   try {
     const themes = await legoData.getAllThemes();
     res.render('addSet', { themes });
@@ -70,7 +130,7 @@ app.get('/lego/addSet', async (req, res) => {
   }
 });
 
-app.post('/lego/addSet', async (req, res) => {
+app.post('/lego/addSet', ensureLogin, async (req, res) => {
   try {
     await legoData.addSet(req.body);
     res.redirect('/lego/sets');
@@ -80,7 +140,7 @@ app.post('/lego/addSet', async (req, res) => {
   }
 });
 
-app.get('/lego/editSet/:num', async (req, res) => {
+app.get('/lego/editSet/:num', ensureLogin, async (req, res) => {
   try {
     const set = await legoData.getSetByNum(req.params.num);
     const themes = await legoData.getAllThemes();
@@ -91,7 +151,7 @@ app.get('/lego/editSet/:num', async (req, res) => {
   }
 });
 
-app.post('/lego/editSet', async (req, res) => {
+app.post('/lego/editSet', ensureLogin, async (req, res) => {
   try {
     const setNum = req.body.set_num;
     const setData = req.body;
@@ -103,7 +163,7 @@ app.post('/lego/editSet', async (req, res) => {
   }
 });
 
-app.get('/lego/deleteSet/:num', async (req, res) => {
+app.get('/lego/deleteSet/:num', ensureLogin, async (req, res) => {
   try {
     const setNum = req.params.num;
     await legoData.deleteSet(setNum);
@@ -114,11 +174,29 @@ app.get('/lego/deleteSet/:num', async (req, res) => {
   }
 });
 
-app.use((req, res, next) => {
+app.get('/logout', (req, res) => {
+  req.session.reset();
+  res.redirect('/');
+});
+
+app.get('/userHistory', ensureLogin, (req, res) => {
+  res.render('userHistory', { loginHistory: req.session.user.loginHistory });
+});
+
+app.use((req, res) => {
   res.status(404).render("404", { message: "I'm sorry, we're unable to find what you're looking for." });
 });
 
-legoData.initialize().then(()=>{
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  if (err.status === 404) {
+    res.status(404).render("404", { message: "Page not found" });
+  } else {
+    res.status(500).render("500", { message: "Internal Server Issue" });
+  }
+});
+
+legoData.initialize().then(authData.initialize).then(()=>{
   app.listen(HTTP_PORT, () => { console.log(`server running on: http://localhost:${HTTP_PORT}`) });
 });
 module.exports = app;

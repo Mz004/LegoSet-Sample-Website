@@ -19,7 +19,7 @@ let User;
 
 module.exports.initialize = async () => {
   return new Promise(function (resolve, reject) {
-    const db = mongoose.createConnection('mongodb+srv://devankitshukla3003:L7dFfcqK97Osn6XF@cluster0.fw6bppo.mongodb.net/', {
+    const db = mongoose.createConnection('mongodb+srv://manavzadafiya:XUusx1PUVPB0aLp1@cluster0.asqkidq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

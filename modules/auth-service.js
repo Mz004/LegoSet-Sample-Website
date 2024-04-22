@@ -52,34 +52,27 @@ module.exports.registerUser = async (userData) => {
 
 module.exports.checkUser = async (userData) => {
   return new Promise((resolve, reject) => {
-    // Find the user by username in the database
     User.findOne({ userName: userData.userName })
       .then(user => {
         if (!user) {
-          // If user is not found, reject the promise
           reject('User not found');
         } else {
-          // Compare the hashed password with the provided password
           bcrypt.compare(userData.password, user.password)
             .then(result => {
               if (result) {
-                // If passwords match, resolve the promise
                 resolve('Password correct');
               } else {
-                // If passwords don't match, reject the promise
                 reject('Incorrect password for user: ' + userData.userName);
               }
             })
             .catch(err => {
               console.log(err);
-              // If there was an error comparing passwords, reject the promise
               reject('Error comparing passwords');
             });
         }
       })
       .catch(err => {
         console.log(err);
-        // If there was an error retrieving user data, reject the promise
         reject('Error retrieving user data');
       });
   });

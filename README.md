@@ -40,5 +40,5 @@ Welcome to the Lego Website! This website is a platform for Lego enthusiasts to 
 
 
 ## Checkout website on cyclic:
--[Click here for cyclic Link](https://worrisome-bat-long-johns.cyclic.app/)
--[Click here for Updated Version - Local Machine](https://github.com/Mz004/LeosSet-Updated-Version)
+- [Click here for cyclic Link](https://worrisome-bat-long-johns.cyclic.app/)
+- [Click here for Updated Version - Local Machine](https://github.com/Mz004/LeosSet-Updated-Version)

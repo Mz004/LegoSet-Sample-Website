@@ -39,5 +39,5 @@ Welcome to the Lego Website! This website is a platform for Lego enthusiasts to 
 
 
 
-## checkout website on cyclic:
+## Checkout website on cyclic:
 [Click Here](https://worrisome-bat-long-johns.cyclic.app/)

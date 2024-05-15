@@ -17,7 +17,7 @@ Welcome to the Lego Website! This website is a platform for Lego enthusiasts to 
   - Edit existing sets.
   - Delete sets.
 
-- **User Authentication and History:**(This version is not deployed yet)
+- **User Authentication and History:**(Check Updated version for this features)
   - Register new users with encrypted passwords.
   - Login/logout functionality with session management.
   - View login history.

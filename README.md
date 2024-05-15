@@ -1,2 +1,2 @@
 # LegoSet
-This repo contains WEB322 website for Assignments
+This repo contains Lego website I have created using 
